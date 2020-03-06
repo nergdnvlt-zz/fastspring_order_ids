@@ -26,14 +26,22 @@ class FastSpringRequest
 
   private
 
-  def set_baseline
-    fastspring_request
+  def doublecheck_orders
+    if @orders.count != @total_orders
+      populate_orders
+      @orders.uniq
+      doublecheck_orders
+    end
   end
 
   def populate_orders
     @pages_arr.each do |page|
       @orders = @orders | fastspring_request(@limit, page)["orders"]
     end
+  end
+
+  def set_baseline
+    fastspring_request
   end
 
   def fastspring_request(limit = 50, page = 1)
@@ -45,13 +53,5 @@ class FastSpringRequest
       "https://api.fastspring.com/orders?limit=#{limit}&page=#{page}",
       basic_auth: auth
     )
-  end
-
-  def doublecheck_orders
-    if @orders.count != @total_orders
-      populate_orders
-      @orders.uniq
-      doublecheck_orders
-    end
   end
 end
