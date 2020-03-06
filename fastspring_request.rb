@@ -2,8 +2,8 @@ require 'httparty'
 require 'Pry'
 
 class FastSpringRequest
-  def self.run(username, password)
-    new(username, password).run
+  def self.run(username, password, limit)
+    new(username, password, limit).run
   end
 
   def run
@@ -14,12 +14,12 @@ class FastSpringRequest
     binding.pry
   end
 
-  def initialize(username, password)
+  def initialize(username, password, limit = 1000 )
     @username = username
     @password = password
     initial_request ||= set_baseline
     @total_orders = initial_request["total"]
-    @limit = 500
+    @limit = limit
     @pages_arr = Array(1..(@total_orders.to_f / @limit).ceil)
     @orders = []
   end
@@ -50,7 +50,7 @@ class FastSpringRequest
   def doublecheck_orders
     if @orders.count != @total_orders
       populate_orders
-      @order.uniq
+      @orders.uniq
       doublecheck_orders
     end
   end
